@@ -65,7 +65,7 @@ class Test_Report:
 		self.user = user
 		self.result = result
 
-def get_user_data(jsonFmt):
+def get_user(jsonFmt):
 	jsonFmt = json.loads(jsonFmt['User'])
 	user_data = User( jsonFmt['Name'],
 				jsonFmt['Age'],
@@ -84,6 +84,41 @@ def get_result(jsonFmt):
 				jsonFmt['Steps'])
 	return result
 
+def output_inaccuarte_step_acc(test_report):
+	return
+
+def output_step_length_training_table(test_repost):
+	return
+
+def output_step_result(test_report):
+	return
+
+def output_calorie_result(test_report):
+	return
+
+def print_all_data(test_report):
+	for test in test_report:
+		u = test.user
+		r = test.result
+		a = test.acc_list
+		print ', '.join("%s: %s" % item for item in vars(u).items())
+		print ', '.join("%s: %s" % item for item in vars(r).items())
+
+		plt.figure()
+		plt.plot(a[:,0], a[:,1],'b', label='accx')
+		plt.plot(a[:,0], a[:,2],'r', label='accy')
+		plt.plot(a[:,0], a[:,3],'g', label='accz')
+		title = "acc_by_{}_at_{}_bpm".format(u.name[0:4],r.speed_bpm)
+		plt.title(title)
+		plt.xlabel('timestamp')
+		plt.ylabel('g')
+		plt.legend(bbox_to_anchor=(1.05, 1), loc=1, borderaxespad=0.)
+		name = "{}.png".format(title)
+		plt.savefig(name)
+
+	#plt.show()
+
+
 f_names = sys.argv
 f_names = f_names[1:]
 
@@ -95,24 +130,8 @@ for name in f_names:
 	#----------------------------------------------#
 	jsonFmt = json.loads(jsonRaw)
 	acc = get_acc_list(jsonFmt)
-	user = get_user_data(jsonFmt)
+	user = get_user(jsonFmt)
 	result = get_result(jsonFmt)
 	test_report.append(Test_Report(acc, user, result))
-i = 0
 
-for test in test_report:
-	u = test.user
-	r = test.result
-	a = test.acc_list
-	print ', '.join("%s: %s" % item for item in vars(u).items())
-	print ', '.join("%s: %s" % item for item in vars(r).items())
-
-	plt.figure()
-	plt.plot(a[:,0], a[:,1],'b')
-	plt.plot(a[:,0], a[:,2],'r')
-	plt.plot(a[:,0], a[:,3],'g')
-	name = "raw{}.png".format(i)
-	plt.savefig(name)
-	i = i + 1
-
-#plt.show()
+#print_all_data(test_report)
