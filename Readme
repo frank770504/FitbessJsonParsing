@@ -1,0 +1,35 @@
+python finess_jsp.py file_has_json file1_has_json ...
+
+All the data will be stored in class "Test_Report".
+
+class Test_Report:
+        def __init__(self, acc, user, result):
+                self.acc_list = acc
+                self.user = user
+                self.result = result
+
+1. acc_list store all the acc raw data whitch is numpy array and piled as [[ax, ay, az], [ax, ay, az]...]
+2. user contains all the user data
+3. result store all the testing result and post calculation for the test
+
+class User:
+        def __init__(self, Name, Age, Weight, Height, Gender):
+                self.name = Name
+                self.age = Age
+                self.weight = Weight
+                self.height = Height
+                self.gender = Gender
+
+class Result:
+        def __init__(self, BPM, Time, Distance, Calorie, Calorie_hr, Steps):
+                self.speed_bpm = float(BPM)
+                self.elapsed_time = Time
+                self.distance = float(Distance)
+                self.m_calorie = float(Calorie)
+                self.ref_calorie = float(Calorie_hr)
+                self.m_steps = float(Steps)
+                self.ref_steps = self.elapsed_time*self.speed_bpm/60.0
+                self.step_length = float( self.distance/self.ref_steps )
+                self.step_err_rate = float( (self.m_steps-self.ref_steps)/self.ref_steps )
+                self.calorie_err_rate = float( (self.m_calorie-self.ref_calorie)/self.ref_calorie )
+
