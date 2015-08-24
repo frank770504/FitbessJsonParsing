@@ -91,7 +91,35 @@ def output_step_length_training_table(test_repost):
 	return
 
 def output_step_result(test_report):
-	return
+	#[[bpm, m_steps, ref_steps, step_err_rate],...]
+	step_r = np.array([])
+	for test in test_report:
+		r = test.result
+		temp = [r.speed_bpm, r.m_steps, r.ref_steps, r.step_err_rate]
+		temp = np.array(temp)
+		step_r =  np.vstack([step_r, temp]) if step_r.size else temp
+	plt.figure()
+	plt.plot(step_r[:,0], step_r[:,1], '*-', label='m_steps')
+	plt.plot(step_r[:,0], step_r[:,2], '*-', label='ref_steps')
+	plt.plot(step_r[:,0], step_r[:,1] - step_r[:,2], '*-',label='diff_steps')
+	plt.title('speed vs steps')
+	plt.xlabel('speed (bpm)')
+	plt.ylabel('steps')
+	plt.legend(bbox_to_anchor=(0.8, 0.8), loc=2, borderaxespad=0.)
+	plt.savefig("speed_vs_steps.png")
+	plt.figure()
+	fig = plt.gca()
+	fig.set_ylim([-0.15, 0.15])
+	plt.plot(step_r[:,0], step_r[:,3], '*-', label='step_err_rate')
+	plt.plot(step_r[:,0], np.ones(step_r[:,0].size)*0.1, label='upper bund')
+	plt.plot(step_r[:,0], np.ones(step_r[:,0].size)*-0.1, label='lower bund')
+	plt.title('speed vs step err rate')
+	plt.xlabel('speed (bpm)')
+	plt.ylabel('steps')
+	plt.legend(bbox_to_anchor=(0.8, 0.8), loc=2, borderaxespad=0.)
+	plt.savefig("speed_vs_step_err_rate.png")
+	#plt.show()
+	return step_r
 
 def output_calorie_result(test_report):
 	return
@@ -135,3 +163,4 @@ for name in f_names:
 	test_report.append(Test_Report(acc, user, result))
 
 #print_all_data(test_report)
+output_step_result(test_report)
