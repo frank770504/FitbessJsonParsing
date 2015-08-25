@@ -84,6 +84,14 @@ def get_result(jsonFmt):
 				jsonFmt['Steps'])
 	return result
 
+def plot_layout_save(ax, title, xlabel, ylabel, out_name):
+	handles, labels = ax.get_legend_handles_labels()
+	lgd = ax.legend(handles, labels, loc=2, bbox_to_anchor=(1.05, 1.))
+	ax.set_title(title)
+	ax.set_xlabel(xlabel)
+	ax.set_ylabel(ylabel)
+	plt.savefig(out_name, bbox_extra_artists=(lgd,), bbox_inches='tight')
+
 def output_inaccuarte_step_acc(test_report):
 	return
 
@@ -99,29 +107,55 @@ def output_step_result(test_report):
 		temp = np.array(temp)
 		step_r =  np.vstack([step_r, temp]) if step_r.size else temp
 	plt.figure()
-	plt.plot(step_r[:,0], step_r[:,1], '*-', label='m_steps')
-	plt.plot(step_r[:,0], step_r[:,2], '*-', label='ref_steps')
-	plt.plot(step_r[:,0], step_r[:,1] - step_r[:,2], '*-',label='diff_steps')
-	plt.title('speed vs steps')
-	plt.xlabel('speed (bpm)')
-	plt.ylabel('steps')
-	plt.legend(bbox_to_anchor=(0.8, 0.8), loc=2, borderaxespad=0.)
-	plt.savefig("speed_vs_steps.png")
+	ax = plt.subplot(111)
+	ax.plot(step_r[:,0], step_r[:,1], '*-', label='m_steps')
+	ax.plot(step_r[:,0], step_r[:,2], '*-', label='ref_steps')
+	ax.plot(step_r[:,0], step_r[:,1] - step_r[:,2], '*-',label='diff_steps')
+	plot_layout_save(ax, 'speed vs steps', 'speed (bpm)', 'steps', "speed_vs_steps.png")
 	plt.figure()
-	fig = plt.gca()
-	fig.set_ylim([-0.15, 0.15])
-	plt.plot(step_r[:,0], step_r[:,3], '*-', label='step_err_rate')
-	plt.plot(step_r[:,0], np.ones(step_r[:,0].size)*0.1, label='upper bund')
-	plt.plot(step_r[:,0], np.ones(step_r[:,0].size)*-0.1, label='lower bund')
-	plt.title('speed vs step err rate')
-	plt.xlabel('speed (bpm)')
-	plt.ylabel('steps')
-	plt.legend(bbox_to_anchor=(0.8, 0.8), loc=2, borderaxespad=0.)
-	plt.savefig("speed_vs_step_err_rate.png")
+	ax = plt.subplot(111)
+	ax.set_ylim([-0.15, 0.15])
+	ax.plot(step_r[:,0], step_r[:,3], '*-', label='step_err_rate')
+	ax.plot(step_r[:,0], np.ones(step_r[:,0].size)*0.1, label='upper bund')
+	ax.plot(step_r[:,0], np.ones(step_r[:,0].size)*-0.1, label='lower bund')
+	plot_layout_save(ax, 'speed vs step err rate', 'speed (bpm)', 'step err rate', "speed_vs_step_err_rate.png")
 	#plt.show()
 	return step_r
 
+def get_algorithm_best_calorie(test):
+	u = test.user
+	r = test.result
+	vel = r.distance / (r.elapsed_time / 60)
+	if vel <= 134:
+		METS = 0.0002575*(vel**2) + 0.0326*vel + 0.18142
+	else:
+		METS = 0.0577*vel - 0.0847
+	cal = METS*u.weight*(r.elapsed_time/3600)
+	return cal
+
 def output_calorie_result(test_report):
+	#[[bpm, m_calorie, ref_calorie, a_calorie, calorie_err_m_a, calorie_err_a_ref, ],...]
+	cal_r = np.array([])
+	for test in test_report:
+		r = test.result
+		a_calorie = get_algorithm_best_calorie(test)
+		calorie_err_m_a = (r.m_calorie - a_calorie) / a_calorie
+		calorie_err_a_ref = (a_calorie - r.ref_calorie) / r.ref_calorie
+		temp = [r.speed_bpm, r.m_calorie, r.ref_calorie, a_calorie,\
+			calorie_err_m_a, calorie_err_a_ref]
+		temp = np.array(temp)
+		cal_r =  np.vstack([cal_r, temp]) if cal_r.size else temp
+	plt.figure()
+	ax = plt.subplot(111)
+	ax.plot(cal_r[:,0], cal_r[:,1], '*-', label='m_steps')
+	ax.plot(cal_r[:,0], cal_r[:,2], '*-', label='ref_steps')
+	plot_layout_save(ax, 'speed vs calorie', 'speed (bpm)', 'kcal', 'speed_vs_calorie.png')
+	plt.figure()
+	ax = plt.subplot(111)
+	ax.plot(cal_r[:,0], cal_r[:,4], '*-', label='calorie_err_m_a')
+	ax.plot(cal_r[:,0], cal_r[:,5], '*-', label='calorie_err_a_ref')
+	plot_layout_save(ax, 'speed vs cal err rate', 'speed (bpm)', 'kcal', 'speed_vs_cal_err_rate.png')
+	#plt.show()
 	return
 
 def print_all_data(test_report):
@@ -164,3 +198,4 @@ for name in f_names:
 
 #print_all_data(test_report)
 output_step_result(test_report)
+output_calorie_result(test_report)
