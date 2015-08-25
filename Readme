@@ -1,4 +1,16 @@
+please install numpy by using the below command
+
+sudo apt-get install python-numpy python-scipy python-matplotlib ipython ipython-notebook python-pandas python-sympy python-nose
+
+or
+
+go to numpy website: http://www.numpy.org/
+
+=========================================================================================
+
 python finess_jsp.py file_has_json file1_has_json ...
+
+=========================================================================================
 
 All the data will be stored in class "Test_Report".
 
@@ -33,3 +45,18 @@ class Result:
                 self.step_err_rate = float( (self.m_steps-self.ref_steps)/self.ref_steps )
                 self.calorie_err_rate = float( (self.m_calorie-self.ref_calorie)/self.ref_calorie )
 
+=========================================================================================
+
+The function usage:
+
+1. output_step_result(test_report)
+	output two result figures for step counter test
+		speed_vs_steps.png, speed_vs_step_err_rate.png
+2. output_calorie_result(test_report)
+	output two result figures for step counter test
+		speed_vs_calorie.png, speed_vs_cal_err_rate.png
+3. output_inaccuarte_step_acc(test_report)
+	output acc log if the |step error rate| is greater than 0.1
+4. output_step_length_training_table(test_report)
+	output step length training table
+		training_table_SL
