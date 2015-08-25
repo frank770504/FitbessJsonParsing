@@ -93,9 +93,41 @@ def plot_layout_save(ax, title, xlabel, ylabel, out_name):
 	plt.savefig(out_name, bbox_extra_artists=(lgd,), bbox_inches='tight')
 
 def output_inaccuarte_step_acc(test_report):
+	for test in test_report:
+		r = test.result
+		u = test.user
+		acc = test.acc_list
+		if np.abs(r.step_err_rate) > 0.1:
+			f_dir = './bad_step/'
+			f_name = "{}acc_by_{}_at_{}_bpm".format(f_dir, u.name[0:4],int(r.speed_bpm))
+			if not os.path.exists(f_dir):
+				os.makedirs(f_dir)
+			f = open(f_name, 'w+')
+			temp = 'Freq;30Hz;\n'
+			f.write(temp)
+			temp = 'Measure Step;{};\n'.format(r.m_steps)
+			f.write(temp)
+			temp = 'Reference Step;{};\n'.format(r.ref_steps)
+			f.write(temp)
+			temp = 'Acc;accx;accy;accz\n'
+			f.write(temp)
+			for a in acc:
+				a.tolist() #np.array to list
+				temp = 'Acc;{1};{2};{3}\n'.format(*a)
+				f.write(temp)
 	return
 
 def output_step_length_training_table(test_repost):
+	f_name = 'training_table_SL'
+	f = open(f_name, 'w+')
+	temp = 'speed height steplength age gender\n'
+	f.write(temp)
+	for test in test_report:
+		u = test.user
+		r = test.result
+		temp = "{} {} {} {} {}\n".format(int(r.speed_bpm), \
+						u.height, r.step_length, u.age, u.gender)
+		f.write(temp)
 	return
 
 def output_step_result(test_report):
@@ -199,3 +231,5 @@ for name in f_names:
 #print_all_data(test_report)
 output_step_result(test_report)
 output_calorie_result(test_report)
+output_inaccuarte_step_acc(test_report)
+output_step_length_training_table(test_report)
