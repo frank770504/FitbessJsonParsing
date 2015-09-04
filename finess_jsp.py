@@ -138,6 +138,7 @@ def output_step_result(test_report):
 		temp = [r.speed_bpm, r.m_steps, r.ref_steps, r.step_err_rate]
 		temp = np.array(temp)
 		step_r =  np.vstack([step_r, temp]) if step_r.size else temp
+	step_r.sort(axis=0)
 	plt.figure()
 	ax = plt.subplot(111)
 	ax.plot(step_r[:,0], step_r[:,1], '*-', label='m_steps')
@@ -177,6 +178,7 @@ def output_calorie_result(test_report):
 			calorie_err_m_a, calorie_err_a_ref]
 		temp = np.array(temp)
 		cal_r =  np.vstack([cal_r, temp]) if cal_r.size else temp
+	cal_r.sort(axis=0)
 	plt.figure()
 	ax = plt.subplot(111)
 	ax.plot(cal_r[:,0], cal_r[:,1], '*-', label='m_steps')
