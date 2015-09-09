@@ -101,7 +101,7 @@ def output_inaccuarte_step_acc(test_report):
 			continue
 		if np.fabs(r.step_err_rate) > 0.1:
 			f_dir = './bad_step/'
-			f_name = "{}acc_by_{}_at_{}_bpm".format(f_dir, u.name[0:4],int(r.speed_bpm))
+			f_name = "{}acc_{}_{}_bpm_({:.2f})".format(f_dir, u.name[0:4],int(r.speed_bpm), r.step_err_rate)
 			if not os.path.exists(f_dir):
 				os.makedirs(f_dir)
 			f = open(f_name, 'w+')

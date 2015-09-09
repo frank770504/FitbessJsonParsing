@@ -64,7 +64,8 @@ The function usage:
 	output two result figures for step counter test
 		speed_vs_calorie.png, speed_vs_cal_err_rate.png
 3. output_inaccuarte_step_acc(test_report)
-	output acc log if the |step error rate| is greater than 0.1
+	* output acc log if the abs(step error rate) is greater than 0.1
+	* the output name will be acc_(name)_(number)_bpm_(error rate)
 4. output_step_length_training_table(test_report)
 	output step length training table
 		training_table_SL
