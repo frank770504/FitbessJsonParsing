@@ -10,6 +10,14 @@ go to numpy website: http://www.numpy.org/
 
 python finess_jsp.py file_has_json file1_has_json ...
 
+or 
+
+set dirr in go.py
+
+it will process all the file in the directory by
+
+python go.py
+
 =========================================================================================
 
 All the data will be stored in class "Test_Report".
