@@ -97,7 +97,9 @@ def output_inaccuarte_step_acc(test_report):
 		r = test.result
 		u = test.user
 		acc = test.acc_list
-		if np.abs(r.step_err_rate) > 0.1:
+		if r.m_steps == 0:
+			continue
+		if np.fabs(r.step_err_rate) > 0.1:
 			f_dir = './bad_step/'
 			f_name = "{}acc_by_{}_at_{}_bpm".format(f_dir, u.name[0:4],int(r.speed_bpm))
 			if not os.path.exists(f_dir):
@@ -138,19 +140,21 @@ def output_step_result(test_report):
 		temp = [r.speed_bpm, r.m_steps, r.ref_steps, r.step_err_rate]
 		temp = np.array(temp)
 		step_r =  np.vstack([step_r, temp]) if step_r.size else temp
-	step_r.sort(axis=0)
+	step_r = step_r[step_r[:,0].argsort()] # sort by bpm
+	ind_zero = np.argwhere(step_r[:,1]==0) # get the index of zero measurement
+	step_r = np.delete(step_r, ind_zero, 0) # delete zero measurement
 	plt.figure()
 	ax = plt.subplot(111)
-	ax.plot(step_r[:,0], step_r[:,1], '*-', label='m_steps')
-	ax.plot(step_r[:,0], step_r[:,2], '*-', label='ref_steps')
-	ax.plot(step_r[:,0], step_r[:,1] - step_r[:,2], '*-',label='diff_steps')
+	ax.plot(step_r[:,0], step_r[:,1], '*', label='m_steps')
+	ax.plot(step_r[:,0], step_r[:,2], '*', label='ref_steps')
+	ax.plot(step_r[:,0], step_r[:,1] - step_r[:,2], '*',label='diff_steps')
 	plot_layout_save(ax, 'speed vs steps', 'speed (bpm)', 'steps', "speed_vs_steps.png")
 	plt.figure()
 	ax = plt.subplot(111)
-	err_max = np.amax(step_r[:,3])
-	err_min = np.amin(step_r[:,3])
+	err_max = np.amax(step_r[:,3]) + 0.1
+	err_min = np.amin(step_r[:,3]) - 0.1
 	ax.set_ylim([min(err_min, -0.15), max(err_max, 0.15)])
-	ax.plot(step_r[:,0], step_r[:,3], '*-', label='step_err_rate')
+	ax.plot(step_r[:,0], step_r[:,3], 'o', label='step_err_rate')
 	ax.plot(step_r[:,0], np.ones(step_r[:,0].size)*0.1, label='upper bund')
 	ax.plot(step_r[:,0], np.ones(step_r[:,0].size)*-0.1, label='lower bund')
 	plot_layout_save(ax, 'speed vs step err rate', 'speed (bpm)', 'step err rate', "speed_vs_step_err_rate.png")
@@ -180,16 +184,26 @@ def output_calorie_result(test_report):
 			calorie_err_m_a, calorie_err_a_ref]
 		temp = np.array(temp)
 		cal_r =  np.vstack([cal_r, temp]) if cal_r.size else temp
-	cal_r.sort(axis=0)
+	ind_sort = cal_r[:,0].argsort()
+	cal_r = cal_r[ind_sort]
+	ind_zero = np.argwhere(cal_r[:,1]==0) # get the index of zero measurement
+	cal_r = np.delete(cal_r, ind_zero, 0) # delete zero measurement
+
 	plt.figure()
 	ax = plt.subplot(111)
-	ax.plot(cal_r[:,0], cal_r[:,1], '*-', label='m_steps')
-	ax.plot(cal_r[:,0], cal_r[:,2], '*-', label='ref_steps')
+	ax.plot(cal_r[:,0], cal_r[:,1], 'o', label='m_steps')
+	ax.plot(cal_r[:,0], cal_r[:,2], 'o', label='ref_steps')
 	plot_layout_save(ax, 'speed vs calorie', 'speed (bpm)', 'kcal', 'speed_vs_calorie.png')
 	plt.figure()
 	ax = plt.subplot(111)
-	ax.plot(cal_r[:,0], cal_r[:,4], '*-', label='calorie_err_m_a')
-	ax.plot(cal_r[:,0], cal_r[:,5], '*-', label='calorie_err_a_ref')
+	battle_feild = np.hstack([cal_r[:,4], cal_r[:,5]])
+	err_max = np.amax(battle_feild) + 0.1
+	err_min = np.amin(battle_feild) - 0.1
+	ax.set_ylim([min(err_min, -0.25), max(err_max, 0.25)])
+	ax.plot(cal_r[:,0], cal_r[:,4], 'o', label='calorie_err_m_a')
+	ax.plot(cal_r[:,0], cal_r[:,5], 'o', label='calorie_err_a_ref')
+	ax.plot(cal_r[:,0], np.ones(cal_r[:,0].size)*0.2, label='upper bund')
+	ax.plot(cal_r[:,0], np.ones(cal_r[:,0].size)*-0.2, label='lower bund')
 	plot_layout_save(ax, 'speed vs cal err rate', 'speed (bpm)', 'kcal', 'speed_vs_cal_err_rate.png')
 	#plt.show()
 	return
@@ -202,17 +216,17 @@ def print_all_data(test_report):
 		print ', '.join("%s: %s" % item for item in vars(u).items())
 		print ', '.join("%s: %s" % item for item in vars(r).items())
 
-		plt.figure()
-		plt.plot(a[:,0], a[:,1],'b', label='accx')
-		plt.plot(a[:,0], a[:,2],'r', label='accy')
-		plt.plot(a[:,0], a[:,3],'g', label='accz')
-		title = "acc_by_{}_at_{}_bpm".format(u.name[0:4],r.speed_bpm)
-		plt.title(title)
-		plt.xlabel('timestamp')
-		plt.ylabel('g')
-		plt.legend(bbox_to_anchor=(1.05, 1), loc=1, borderaxespad=0.)
-		name = "{}.png".format(title)
-		plt.savefig(name)
+#		plt.figure()
+#		plt.plot(a[:,0], a[:,1],'b', label='accx')
+#		plt.plot(a[:,0], a[:,2],'r', label='accy')
+#		plt.plot(a[:,0], a[:,3],'g', label='accz')
+#		title = "acc_by_{}_at_{}_bpm".format(u.name[0:4],r.speed_bpm)
+#		plt.title(title)
+#		plt.xlabel('timestamp')
+#		plt.ylabel('g')
+#		plt.legend(bbox_to_anchor=(1.05, 1), loc=1, borderaxespad=0.)
+#		name = "{}.png".format(title)
+#		plt.savefig(name)
 
 	#plt.show()
 
