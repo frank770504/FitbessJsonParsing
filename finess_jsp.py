@@ -119,7 +119,7 @@ def output_inaccuarte_step_acc(test_report):
 				f.write(temp)
 	return
 
-def output_step_length_training_table(test_repost):
+def output_step_length_training_table(test_report):
 	f_name = 'training_table_SL'
 	f = open(f_name, 'w+')
 	temp = 'speed height steplength age gender\n'
